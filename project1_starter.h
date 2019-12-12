@@ -244,7 +244,7 @@ const unsigned MaxCoursesForGradStudent = 4;
 
 class GraduateStudent : public Student {
   
-  Teacher advisor;
+  Teacher* advisor;
   unsigned short numCourses;
 
 public:

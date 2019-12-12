@@ -63,6 +63,7 @@ Person::Person(){
     setName("");
     setAddress("");
     setIdentification(0);
+    setBirthDate(*(new Date()));
 }
 
 Person::Person( const string theName, unsigned long theSSN, Date theBday, const string theAddress ){
@@ -138,6 +139,7 @@ Student::Student(){
     setName("");
     setAddress("");
     setIdentification(0);
+    setBirthDate(*(new Date()));
     setStatus(sUnknown);
     setDepartment(dUnknown);
     numCourses = 0;
@@ -225,9 +227,7 @@ void Student::listCoursesRegisteredFor() const{
     return;
 }
 void Student::print() const{
-    cout <<"name: " << this->getName << endl << "address: "<< this->getAddress << endl
-        <<"ssn: "<< this->getIdentification << endl << "birthdate: " << this->getBirthDate << endl;
-
+    Person::print();
     cout<<"status: "<<status<<endl
         <<"department: "<<department<<endl
         <<"Courses: ";
@@ -242,6 +242,7 @@ Teacher::Teacher(){
     setName("");
     setAddress("");
     setIdentification(0);
+    setBirthDate(*(new Date()));
     setRank(rUnknown);
     setSalary(0);
     setDepartment(dUnknown);
@@ -377,9 +378,7 @@ void Teacher::setSalary( double theSalary ){
 }
 
 void Teacher::print() const{
-     cout <<"name: " << this->getName << endl << "address: "<< this->getAddress << endl
-        <<"ssn: "<< this->getIdentification << endl << "birthdate: " << this->getBirthDate << endl;
-
+    Person::print();
     cout<<"rank: "<<rank<<endl
         <<"salary: "<<salary<<endl
         <<"Department: "<<department<<endl
@@ -393,3 +392,182 @@ void Teacher::print() const{
 
 
 ////// End Teacher //////
+
+
+////// GraduateStudent //////
+GraduateStudent::GraduateStudent(){
+    setName("");
+    setAddress("");
+    setIdentification(0);
+    setBirthDate(*(new Date()));
+    setStatus(sUnknown);
+    setDepartment(dUnknown);
+    numCourses = 0;
+    advisor = new Teacher;
+}
+GraduateStudent::GraduateStudent( const string theName,
+                unsigned long theSSN,
+                const Date theBirthDate,
+                const string theAddress,
+                StudentStatus theStatus,
+                Department theDepartment,
+                const Teacher& theAdvisor){
+    setName(theName);
+    setIdentification(theSSN);
+    setBirthDate(theBirthDate);
+    setAddress(theAddress);
+    setStatus(theStatus);
+    setDepartment(theDepartment);
+    advisor = &theAdvisor;
+}
+
+GraduateStudent::GraduateStudent( const GraduateStudent& other ){
+    setName(other.getName());
+    setIdentification(other.getIdentification());
+    setBirthDate(other.getBirthDate());
+    setAddress(other.getAddress());
+    setStatus(other.getStatus());
+    setDepartment(other.getDepartment());
+    advisor = other.advisor;
+}
+GraduateStudent&  GraduateStudent::operator=( const GraduateStudent& other ){
+    if(this != &other){
+        setName(other.getName());
+        setIdentification(other.getIdentification());
+        setBirthDate(other.getBirthDate());
+        setAddress(other.getAddress());
+        setStatus(other.getStatus());
+        setDepartment(other.getDepartment());
+        advisor = other.advisor;
+	}
+    return *this;
+}
+GraduateStudent::~GraduateStudent(){
+    delete advisor;
+}
+
+
+//need to override the following method inherited from 
+//Student class because a grad students cannot enroll in 
+//low-level courses
+bool GraduateStudent::enrollForCourse( const Course& aCourse ){
+    if(aCourse.getCourseId() < GradCourseLevel) return false;
+    
+    Student::enrollForCourse(aCourse);
+    return true;
+}
+
+void GraduateStudent::changeAdvisor( const Teacher& newAdvisor ){
+    this->advisor = &newAdvisor;
+}
+
+Teacher GraduateStudent::getAdvisor() const{
+    return *(this->advisor);
+}
+
+void GraduateStudent::print() const{
+    Student::print();
+    cout<<"advisor: "<<endl;
+    advisor->print();
+}
+
+////// End GraduateStudent //////
+
+////// GradTeachAsst//////
+GradTeachAsst::GradTeachAsst(){
+    setName("");
+    setAddress("");
+    setIdentification(0);
+    setBirthDate(*(new Date()));
+    //GradStudent
+    setStatus(sUnknown);
+    Student::setDepartment(dUnknown);
+    //Teacher
+    setRank(rUnknown);
+    setSalary(0);
+    Teacher::setDepartment(dUnknown);
+}
+GradTeachAsst::GradTeachAsst( const string theName,
+                unsigned long theSSN,
+                const Date theBirthDate,
+                const string theAddress,
+                StudentStatus theStatus,
+                Department studentDepartment,    // (A)
+                const Teacher& theAdvisor,
+                Department teachingDepartment,    // compare to A
+                Rank theRank = GradTeachingAsst){
+    setName(theName);
+    setAddress("");
+    setIdentification(theSSN);
+    setBirthDate(theBirthDate);
+    //GradStudent
+    setStatus(theStatus);
+    Student::setDepartment(studentDepartment);
+    GraduateStudent::changeAdvisor(theAdvisor);
+    //Teacher
+    setRank(GradTeachingAsst);
+    Teacher::setDepartment(teachingDepartment);
+}
+
+
+GradTeachAsst::GradTeachAsst( const GradTeachAsst& other ){
+    setName(other.getName());
+    setAddress(other.getAddress());
+    setIdentification(other.getIdentification());
+    setBirthDate(other.getBirthDate());
+    //GradStudent
+    setStatus(other.getStatus());
+    Student::setDepartment(other.getStudentDepartment());
+    //Teacher
+    setRank(other.getRank());
+    setSalary(other.getSalary());
+    Teacher::setDepartment(other.getTeachingDepartment());
+}
+GradTeachAsst& GradTeachAsst::operator=( const GradTeachAsst& other ){
+    if(this != &other){
+        setName(other.getName());
+        setAddress(other.getAddress());
+        setIdentification(other.getIdentification());
+        setBirthDate(other.getBirthDate());
+        //GradStudent
+        setStatus(other.getStatus());
+        Student::setDepartment(other.getStudentDepartment());
+        //Teacher
+        setRank(other.getRank());
+        setSalary(other.getSalary());
+        Teacher::setDepartment(other.getTeachingDepartment());
+	}
+    return *this;
+}
+GradTeachAsst::~GradTeachAsst(){
+    
+}
+
+void GradTeachAsst::setStudentDepartment( Department dept ){
+    this->Student::setDepartment(dept);
+    return;
+}
+Department GradTeachAsst::getStudentDepartment() const{
+    return this->Student::getDepartment();
+}
+
+void GradTeachAsst::setTeachingDepartment( Department dept ){
+    this->Teacher::setDepartment(dept);
+    return;
+}
+Department GradTeachAsst::getTeachingDepartment() const{
+    return this->Teacher::getDepartment();
+}
+
+// this method must be overridden because for a GradTeachAsst
+// the rank cannot be changed
+bool GradTeachAsst::setRank( Rank newRank ){
+    this->setRank(newRank);
+}
+
+// this method must be overridden because of name conflict
+// from two different bases  
+void GradTeachAsst::print() const{
+    GraduateStudent::print();
+    Teacher::print();
+}
