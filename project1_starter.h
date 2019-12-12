@@ -128,6 +128,7 @@ public:
   string getName() const;
   void setAddress( const string theAddress );
   string getAddress() const;
+  void setBirthDate( const Date theBirthDate);
   Date getBirthDate() const;
   unsigned long getIdentification() const;
   void setIdentification( unsigned long newID );
